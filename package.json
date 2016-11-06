@@ -11,6 +11,7 @@
   "dependencies": {
     "async": "^2.1.2",
     "better-assert": "^1.0.2",
+    "colors": "^1.1.2",
     "node-opcua": "git+https://git@github.com/node-opcua/node-opcua.git",
     "underscore": "^1.8.3"
   }
