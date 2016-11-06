@@ -1,0 +1,17 @@
+{
+  "name": "bench-opcua",
+  "version": "0.0.1",
+  "description": "test bench for opcua",
+  "main": "test_performance.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Etienne Rossignon",
+  "license": "MIT",
+  "dependencies": {
+    "async": "^2.1.2",
+    "better-assert": "^1.0.2",
+    "node-opcua": "git+https://git@github.com/node-opcua/node-opcua.git",
+    "underscore": "^1.8.3"
+  }
+}
