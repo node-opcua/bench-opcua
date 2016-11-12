@@ -58,7 +58,7 @@ function benchmark(nodes, endpointUrl, callback) {
     //console.log("--------------<<<<<<<<<<<<", n)
     the_session.read(nodesToRead, function(err, a, results) {
       var diff = process.hrtime(hrTime); // second nano seconds
-      var time_in_sec = diff[1] / 1000000000.0;
+      var time_in_sec = diff[0] + diff[1] / 1000000000.0; // in seconde
       var ops_per_sec = nodesToRead.length / time_in_sec;
       stats.push(time_in_sec);
       if (err) {
@@ -72,7 +72,7 @@ function benchmark(nodes, endpointUrl, callback) {
             .toString());
           process.exit();
         }
-      })
+      });
       if (doDebug) {
         console.log("err = ", err, diff, results.length, n, time_in_sec,
           " ops per sec = ", ops_per_sec);
@@ -85,8 +85,10 @@ function benchmark(nodes, endpointUrl, callback) {
 
     async.series([
       performance_testing_parallel.bind(null, 1),
-      performance_testing_parallel.bind(null, 2),
       performance_testing_parallel.bind(null, 4),
+      performance_testing_parallel.bind(null, 16),
+      performance_testing_parallel.bind(null, 256),
+      performance_testing_parallel.bind(null, 1024),
       //xx performance_testing_parallel.bind(null, 10),
       //xx performance_testing_parallel.bind(null, 100),
     ], callback);
@@ -95,24 +97,28 @@ function benchmark(nodes, endpointUrl, callback) {
 
   function performance_testing_parallel(nbConcurrentRead, callback) {
 
-    var hrTime = process.hrtime();
     var tasks = [];
-    var nb_reads = 1000;
+    var nb_reads = 2048;
     for (var i = 0; i < nb_reads; i++) {
       tasks.push(single_read);
     }
 
-
+    var hrTime = process.hrtime();
     async.parallelLimit(tasks, nbConcurrentRead, function() {
+
       var diff = process.hrtime(hrTime);
+
+      var total_time2 = diff[0] + diff[1] / 1000000000.0; // in seconds
       var total_time = stats.reduce(function(a, b) {
         return a + b;
       }, 0);
-      var ops_per_sec = nodesToRead.length * nb_reads / total_time;
+
+      var ops_per_sec  = nodesToRead.length * nb_reads / total_time;
+      var ops_per_sec2 = nodesToRead.length * nb_reads / total_time2;
 
       console.log("   nbConcurrentRead = ", nbConcurrentRead);
-      console.log("       Overalls nb ops per sec = ".cyan,
-        ops_per_sec.toFixed(2).white.bold);
+      console.log("         local nb read per sec = ".cyan, ops_per_sec.toFixed(2).white.bold , " apparent time= ",total_time);
+      console.log("         overall read  per sec = ".cyan,ops_per_sec2.toFixed(2).white.bold , " t = ",total_time2);
       console.log("                      byteWritten = ".cyan, client.bytesWritten);
       console.log("                      byteRead    = ".cyan, client.bytesRead);
       console.log("            transactionsPerformed = ".cyan, client.transactionsPerformed);
