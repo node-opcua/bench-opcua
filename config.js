@@ -157,3 +157,42 @@ exports.nodes_milo = {
   array_qualifiedname: "ns=2;s=HelloWorld/QualifiedNameArray"
 
 };
+exports.generic_opc = {
+    scalar_boolean: "ns=2;s=DataAccess_DataItem_Boolean",
+    scalar_sbyte: "ns=2;s=DataAccess_DataItem_SByte",
+    scalar_int16: "ns=2;s=DataAccess_DataItem_Int16",
+    scalar_int32: "ns=2;s=DataAccess_DataItem_Int32",
+    scalar_int64: "ns=2;s=DataAccess_DataItem_Int64",
+    scalar_byte: "ns=2;s=DataAccess_DataItem_Byte",
+    scalar_uint16: "ns=2;s=DataAccess_DataItem_UInt16",
+    scalar_uint32: "ns=2;s=DataAccess_DataItem_UInt32",
+    scalar_uint64: "ns=2;s=DataAccess_DataItem_UInt64",
+    scalar_float: "ns=2;s=DataAccess_DataItem_Float",
+    scalar_double: "ns=2;s=DataAccess_DataItem_Double",
+    scalar_string: "ns=2;s=DataAccess_DataItem_String",
+    scalar_datetime: "ns=2;s=DataAccess_DataItem_DateTime",
+    scalar_guid: "ns=2;s=DataAccess_DataItem_Guid",
+    scalar_bytestring: "ns=2;s=DataAccess_DataItem_ByteString",
+    scalar_xmlelement: "ns=2;s=DataAccess_DataItem_XmlElement",
+    scalar_localizedtext: "ns=2;s=DataAccess_DataItem_LocalizedText",
+    scalar_qualifiedname: "ns=2;s=DataAccess_DataItem_QualifiedName",
+
+    array_boolean: "ns=2;s=DataAccess_AnalogType_Array_Boolean",
+    array_sbyte: "ns=2;s=DataAccess_AnalogType_Array_SByte",
+    array_int16: "ns=2;s=DataAccess_AnalogType_Array_Int16",
+    array_int32: "ns=2;s=DataAccess_AnalogType_Array_Int32",
+    array_int64: "ns=2;s=DataAccess_AnalogType_Array_Int64",
+    array_byte: "ns=2;s=DataAccess_AnalogType_Array_Byte",
+    array_uint16: "ns=2;s=DataAccess_AnalogType_Array_UInt16",
+    array_uint32: "ns=2;s=DataAccess_AnalogType_Array_UInt32",
+    array_uint64: "ns=2;s=DataAccess_AnalogType_Array_UInt64",
+    array_float: "ns=2;s=DataAccess_AnalogType_Array_Float",
+    array_double: "ns=2;s=DataAccess_AnalogType_Array_Double",
+    array_string: "ns=2;s=DataAccess_AnalogType_Array_String",
+    array_datetime: "ns=2;s=DataAccess_AnalogType_Array_DateTime",
+    array_guid: "ns=2;s=DataAccess_AnalogType_Array_Guid",
+    array_bytestring: "ns=2;s=DataAccess_AnalogType_Array_ByteString",
+    array_xmlelement: "ns=2;s=DataAccess_AnalogType_Array_XmlElement",
+    array_localizedtext: "ns=2;s=DataAccess_AnalogType_Array_LocalizedText",
+    array_qualifiedname: "ns=2;s=DataAccess_AnalogType_Array_QualifiedName"
+};
