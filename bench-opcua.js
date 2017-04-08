@@ -237,7 +237,7 @@ async.series([
 ], function () {
     console.log("----------------------->");
     process.exit(0);
-})
+});
 
 
 var buildVariantArray = opcua.buildVariantArray;
