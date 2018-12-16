@@ -18,9 +18,9 @@ const doDebug =false;
 const maxByteStringLength = 60;
 const arraySize = 30;
 
-const nbReadValuePerRequest = 100;
+const nbReadValuePerRequest = 15;
 ///const concurrencies =[1,4,8,16,32,256,1024];
-const concurrencies =[1,8,32,256];//4,8,16,32,256,1024];
+const concurrencies =[1,4,8,16,32,256,512];//4,8,16,32,256,1024];
 
 const refNodes2 = [
     "scalar_boolean",
@@ -106,17 +106,18 @@ function benchmark(name,nodes, endpointUrl, callback) {
 
     assert(nodes instanceof Object);
 
-    //xx const securityMode = opcua.MessageSecurityMode.NONE;
-    //xx const securityPolicy = opcua.SecurityPolicy.None;
-    const securityMode = opcua.MessageSecurityMode.SIGNANDENCRYPT;
-    const securityPolicy = opcua.SecurityPolicy.Basic256;
+    const securityMode = opcua.MessageSecurityMode.NONE;
+    const securityPolicy = opcua.SecurityPolicy.None;
+    //Xx const securityMode = opcua.MessageSecurityMode.SIGNANDENCRYPT;
+    //Xx const securityPolicy = opcua.SecurityPolicy.Basic256;
 
     const options = {
         securityMode: securityMode,
         securityPolicy: securityPolicy,
         connectionStrategy: {
             maxRetry: 0
-        }
+        },
+        endpoint_must_exist: false
     };
     const client = new opcua.OPCUAClient(options);
     let the_session;
@@ -274,19 +275,23 @@ function benchmark(name,nodes, endpointUrl, callback) {
             var nodesToRegister = variable_names.map(name=>nodes[name]);
         
             the_session.registerNodes(nodesToRegister,function(err,aliasNodes){
+                
                 if (err) { return callback(err); }
+                
                 _.zip(variable_names,aliasNodes).map(([name,alias])=>{
                     nodes[name] = alias;
                 });
 
                 nodesToRead = variable_names.map(function (k) {
-                    const v = nodes[k];
                     return {
                         nodeId:  nodes[k],
                         attributeId: opcua.AttributeIds.Value
                     };
                 });
-            
+
+                //console.log(nodesToRead.map(x=>x.nodeId.toString()).join(" "));
+                //console.log(aliasNodes.map(x=>x.toString()).join(" "));
+
                 while(nodesToRead.length<nbReadValuePerRequest)  {
                     nodesToRead = [].concat(nodesToRead,nodesToRead);
                 }
@@ -339,15 +344,14 @@ async.series([
         const nodes = filterNodes(require("./config").nodes_node_opcua);
         // let hostname = "opcuademo.sterfive.com";
         const endpointUrl = "opc.tcp://" + hostname + ":26543";
-        benchmark("NodeOPCUA(0.2.2)",nodes, endpointUrl, callback);
+        benchmark("NodeOPCUA(0.5.4)",nodes, endpointUrl, callback);
     },
 
     function (callback) {
-       return callback();
         console.log(" Performance testing : NODE OPCUA old");
         const nodes = filterNodes(require("./config").nodes_node_opcua);
-        // let hostname = "opcuademo.sterfive.com";
-        const endpointUrl = "opc.tcp://" + hostname + ":26542";
+        let hostname = "opcuademo.sterfive.com";
+        const endpointUrl = "opc.tcp://" + hostname + ":26543";
         benchmark("NodeOPCUA(0.0.65)",nodes, endpointUrl, callback);
     },
 
