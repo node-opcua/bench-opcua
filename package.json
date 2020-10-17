@@ -4,17 +4,18 @@
   "description": "test bench for opcua",
   "main": "test_performance.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "ts-node bench-opcua.ts"
   },
   "author": "Etienne Rossignon",
   "license": "MIT",
   "dependencies": {
-    "async": "^3.1.1",
+    "@types/markdown-table": "^2.0.0",
+    "async": "^3.2.0",
     "better-assert": "^1.0.2",
-    "chalk": "^3.0.0",
+    "chalk": "^4.1.0",
     "colors": "^1.4.0",
     "markdown-table": "^2.0.0",
-    "node-opcua": "^2.4.4",
-    "underscore": "^1.9.2"
+    "node-opcua": "^2.21.0",
+    "underscore": "^1.11.0"
   }
 }
