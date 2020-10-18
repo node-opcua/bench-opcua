@@ -51,8 +51,9 @@ const doDebug = false;
 const maxByteStringLength = 60;
 const arraySize = 30;
 
-const nbReadValuePerRequest = 150;
-const samples = [1, 2, 4, 8, 16];
+const nbReadValuePerRequest = 1000;
+const samples = [1, 2, 4];
+const _samples = [1, 2, 4, 8, 16];
 //,32,256,1024];
 //const samples = [1, 4, 8, 16, 32, 256, 512]; //4,8,16,32,256,1024];
 
@@ -70,7 +71,7 @@ const refNodes2 = [
   "scalar_double",
   "scalar_string",
   "scalar_datetime",
-  "scalar_guid",
+  //"scalar_guid",
   "scalar_bytestring",
   "scalar_xmlelement",
   "scalar_localizedtext",
@@ -179,7 +180,7 @@ async function createSession(endpointUrl: string): Promise<{ client: OPCUAClient
   } catch (err) {
     console.log(chalk.cyan(" cannot connect to endpoint :"), endpointUrl);
     console.log(" ERR = >", err.message);
-    process.exit(-1);
+    throw err;
   }
   if (doDebug) {
     console.log("connected !");
@@ -248,6 +249,8 @@ async function benchmark(name: string, nodes: { [key: string]: string }, endpoin
     read_counter: 0,
     stats: [],
   };
+  console.log("-------------------------------------------------------------------------------");
+  console.log(" Performance testing : ", name, endpointUrl);
 
   async function onManySessions() {
     interface Stuff {
@@ -441,8 +444,12 @@ async function benchmark(name: string, nodes: { [key: string]: string }, endpoin
     await client.disconnect();
   }
 
-  // await onManySessions();
-  await onSingleSession();
+  try {
+    // await onManySessions();
+    await onSingleSession();
+  } catch (err) {
+    console.log(" Cannot complete test");
+  }
 
   if (doDebug) {
     console.log(" completed");
@@ -599,14 +606,24 @@ async function initializeNodes(session: ClientSession, nodes: { [key: string]: s
 
 async function main() {
   if (true) {
-    console.log(" Performance testing : NODE OPCUA");
+    const nodes = filterNodes(require("./config").nodes_uaautomation_cpp);
+    const endpointUrl = "opc.tcp://" + hostname + ":48010";
+    await benchmark("UA Automation CPP", nodes, endpointUrl);
+  }
+
+  if (true) {
+    const nodes = filterNodes(require("./config").nodes_node_opcua);
+    // let hostname = "opcuademo.sterfive.com";
+    const endpointUrl = "opc.tcp://" + hostname + ":26544";
+    await benchmark("NodeOPCUA(2.20.0)-CURRENT", nodes, endpointUrl);
+  }
+  if (true) {
     const nodes = filterNodes(require("./config").nodes_node_opcua);
     // let hostname = "opcuademo.sterfive.com";
     const endpointUrl = "opc.tcp://" + hostname + ":26543";
-    await benchmark("NodeOPCUA(2.21.0)", nodes, endpointUrl);
+    await benchmark("NodeOPCUA(2.21.0)-DEV", nodes, endpointUrl);
   }
   if (false) {
-    console.log(" Performance testing : NODE OPCUA old");
     const nodes = filterNodes(require("./config").nodes_node_opcua);
     let hostname = "opcuademo.sterfive.com";
     const endpointUrl = "opc.tcp://" + hostname + ":26543";
@@ -614,40 +631,28 @@ async function main() {
   }
 
   if (false) {
-    console.log(" Performance testing : OpenOPCUA");
     const nodes = filterNodes(require("./config").nodes_openopcua);
     const endpointUrl = "opc.tcp://" + hostname + ":16664";
     await benchmark("OpenOPCUA", nodes, endpointUrl);
   }
 
-  if (true) {
-    console.log(" Performance testing : UA Automation CPP");
-    const nodes = filterNodes(require("./config").nodes_uaautomation_cpp);
-    const endpointUrl = "opc.tcp://" + hostname + ":48010";
-    await benchmark("UA Automation CPP", nodes, endpointUrl);
-  }
-
   if (false) {
-    console.log(" Performance testing : UA Automation AnsiC");
     const nodes = filterNodes(require("./config").nodes_uaautomation_ansiC);
     const endpointUrl = "opc.tcp://" + hostname + ":48020";
     await benchmark("UA Automation AnsiC", nodes, endpointUrl);
   }
 
   if (true) {
-    console.log(" Performance testing : PROSYS");
     const nodes = filterNodes(require("./config").nodes_prosys);
     const endpointUrl = "opc.tcp://" + hostname + ":53530/OPCUA/SimulationServer";
     await benchmark("PROSYS", nodes, endpointUrl);
   }
   if (false) {
-    console.log(" Performance testing : OPC Foundation generic_opc");
     const nodes = filterNodes(require("./config").generic_opc);
     const endpointUrl = "opc.tcp://" + "localhost" + ":62541/Quickstarts/ReferenceServer";
     await benchmark("OPCFoundation", nodes, endpointUrl);
   }
   if (false) {
-    console.log(" Performance testing : Eclipse Milo");
     const nodes = filterNodes(require("./config").nodes_milo);
     const endpointUrl = "opc.tcp://" + hostname + ":12686/example";
     await benchmark("Milo", nodes, endpointUrl);
