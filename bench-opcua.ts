@@ -5,7 +5,7 @@ import * as async from "async";
 import * as _ from "underscore";
 import * as chalk from "chalk";
 import { callbackify } from "util";
-import * as markdownTable from "markdown-table";
+import { markdownTable } from "markdown-table";
 
 import {
   OPCUAClient,
@@ -14,8 +14,6 @@ import {
   SecurityPolicy,
   StatusCodes,
   DataType,
-  assert,
-  ReadValueId,
   buildVariantArray,
   Variant,
   VariantArrayType,
@@ -33,15 +31,12 @@ import {
   randomByteString,
   randomDateTime,
   randomGuid,
-  ReadValueIdLike,
   coerceLocalizedText,
-  QualifiedName,
   WriteValue,
-  IBasicSession,
-  WriteValueLike,
   coerceQualifiedName,
   ClientSession,
   ReadValueIdOptions,
+  WriteValueOptions,
 } from "node-opcua";
 
 //const hostname = require("os").hostname();
@@ -135,7 +130,7 @@ const refNodes1 = [
         "array_qualifiedname"
     */
 ];
-const g_results = {};
+const g_results: any = {};
 
 function sum(a: number[]) {
   return a.reduce((p, current) => p + current, 0);
@@ -143,8 +138,8 @@ function sum(a: number[]) {
 
 const refNodes = refNodes2;
 
-function filterNodes(nodes) {
-  var selectedNodes = {};
+function filterNodes(nodes: any): Record<string, string> {
+  const selectedNodes: Record<string, string> = {};
   for (let i = 0; i < refNodes.length; i++) {
     const n = refNodes[i];
     if (!nodes[n]) {
@@ -179,7 +174,7 @@ async function createSession(endpointUrl: string): Promise<{ client: OPCUAClient
     await client.connect(endpointUrl);
   } catch (err) {
     console.log(chalk.cyan(" cannot connect to endpoint :"), endpointUrl);
-    console.log(" ERR = >", err.message);
+    console.log(" ERR = >", (err as Error).message);
     throw err;
   }
   if (doDebug) {
@@ -190,29 +185,29 @@ async function createSession(endpointUrl: string): Promise<{ client: OPCUAClient
   return { client, session };
 }
 
-async function makeAliases(session: ClientSession, nodes: { [key: string]: string }): Promise<{ [key: string]: string }> {
+async function makeAliases(session: ClientSession, nodes: Record<string, string>): Promise<Record<string, string>> {
   const nodesToRegister = Object.values(nodes);
 
   const variableNames = Object.keys(nodes);
-  const newNodes = {};
+  const newNodes: Record<string, string> = {};
   const aliasNodes = await session.registerNodes(nodesToRegister);
   _.zip(variableNames, aliasNodes).map(([name, alias]) => {
     newNodes[name] = alias;
   });
   return newNodes;
 }
-async function makeNodeToRead(nodes: { [key: string]: string }, nbReadValuePerRequest: number): Promise<ReadValueIdLike[]> {
+async function makeNodeToRead(nodes: Record<string, string>, nbReadValuePerRequest: number): Promise<ReadValueIdOptions[]> {
   // step2 a: register the node that we will use to reduce the memory overhead
   //          in data transfer
   const variableNames = Object.keys(nodes);
-  let nodesToRead: ReadValueIdLike[];
+  let nodesToRead: ReadValueIdOptions[];
   nodesToRead = variableNames.map((k) => ({
     nodeId: nodes[k],
     attributeId: AttributeIds.Value,
   }));
 
   while (nodesToRead.length < nbReadValuePerRequest) {
-    nodesToRead = [].concat(nodesToRead, nodesToRead);
+    nodesToRead = (<ReadValueIdOptions[]>[]).concat(nodesToRead, nodesToRead);
   }
   nodesToRead.splice(nbReadValuePerRequest);
   console.log("Nodes to Read => ", nodesToRead.length);
@@ -220,7 +215,7 @@ async function makeNodeToRead(nodes: { [key: string]: string }, nbReadValuePerRe
 }
 async function single_read2(
   session: ClientSession,
-  nodesToRead: ReadValueIdLike[],
+  nodesToRead: ReadValueIdOptions[],
   stats: { read_counter: number; stats: number[] }
 ) {
   stats.read_counter += 1;
@@ -244,7 +239,7 @@ async function single_read2(
     console.log(diff, dataValues.length, n, time_in_sec, " ops per sec = ", ops_per_sec);
   }
 }
-async function benchmark(name: string, nodes: { [key: string]: string }, endpointUrl: string): Promise<void> {
+async function benchmark(name: string, nodes: Record<string, string>, endpointUrl: string): Promise<void> {
   const stats: any = {
     read_counter: 0,
     stats: [],
@@ -269,7 +264,7 @@ async function benchmark(name: string, nodes: { [key: string]: string }, endpoin
       for (let i = 0; i < nbConcurrentRead; i++) {
         pc.push(f());
       }
-      const cs: { client: OPCUAClient; session: ClientSession }[] = await Promise.all(pc);
+      const cs: Stuff[] = await Promise.all(pc);
 
       const c_bytesWritten: number[] = [];
       const c_bytesRead: number[] = [];
@@ -345,7 +340,7 @@ async function benchmark(name: string, nodes: { [key: string]: string }, endpoin
         await session.close();
         await client.disconnect();
       }
-      const pd = cs.map(f2);
+      const pd = cs.map(f2 as any);
       await Promise.all(pd);
     }
 
@@ -366,7 +361,7 @@ async function benchmark(name: string, nodes: { [key: string]: string }, endpoin
     }
     const single_read = callbackify(single_read1);
 
-    function performance_testing_parallel(nbConcurrentRead, callback) {
+    function performance_testing_parallel(nbConcurrentRead: number, callback: () => void) {
       const tasks = [];
       const nb_reads = 2048;
 
@@ -430,10 +425,10 @@ async function benchmark(name: string, nodes: { [key: string]: string }, endpoin
         callback();
       });
     }
-    async function performance_testing(session: ClientSession, nodesToRead: ReadValueIdLike[]) {
+    async function performance_testing(session: ClientSession, nodesToRead: ReadValueIdOptions[]) {
       const tasks = samples.map((n) => performance_testing_parallel.bind(null, n));
 
-      return new Promise((resolve) => {
+      return new Promise<void>((resolve) => {
         async.series(tasks, (err) => resolve());
       });
     }
@@ -460,14 +455,14 @@ function makeRandomArray(dataType: string, value: any, n: number) {
   if (_.isFunction(value)) {
     value = value();
   }
-  const a = buildVariantArray(DataType[dataType], n, value);
+  const a = buildVariantArray((DataType as any)[dataType] as DataType, n, value);
   for (let i = 0; i < n; i++) {
     a[i] = value;
   }
   return a;
 }
 
-function makeDefaultArrayValue(Type, valueOrFunc, size) {
+function makeDefaultArrayValue(Type: any, valueOrFunc: any, size: number) {
   const res = new Variant({
     dataType: DataType[Type],
     arrayType: VariantArrayType.Array,
@@ -477,7 +472,7 @@ function makeDefaultArrayValue(Type, valueOrFunc, size) {
   return res;
 }
 
-const defaultValue = {
+const defaultValue: Record<string, Variant> = {
   array_boolean: makeDefaultArrayValue("Boolean", randomBoolean, arraySize),
   array_sbyte: makeDefaultArrayValue("SByte", randomSByte, arraySize),
   array_int16: makeDefaultArrayValue("Int16", randomInt16, arraySize),
@@ -498,86 +493,86 @@ const defaultValue = {
   array_localizedtext: makeDefaultArrayValue("LocalizedText", coerceLocalizedText("HHHH"), arraySize),
   array_qualifiedname: makeDefaultArrayValue("QualifiedName", coerceQualifiedName("HHHH"), arraySize),
 
-  scalar_boolean: {
+  scalar_boolean: new Variant({
     dataType: DataType.Boolean,
     value: true,
-  },
-  scalar_sbyte: {
+  }),
+  scalar_sbyte: new Variant({
     dataType: DataType.SByte,
     value: 15,
-  },
-  scalar_int16: {
+  }),
+  scalar_int16: new Variant({
     dataType: DataType.Int16,
     value: 134,
-  },
-  scalar_int32: {
+  }),
+  scalar_int32: new Variant({
     dataType: DataType.Int32,
     value: 12345,
-  },
-  scalar_int64: {
+  }),
+  scalar_int64: new Variant({
     dataType: DataType.Int64,
     arrayType: VariantArrayType.Scalar,
     value: [2, 23],
-  },
-  scalar_byte: {
+  }),
+  scalar_byte: new Variant({
     dataType: DataType.Byte,
     value: 12,
-  },
-  scalar_uint16: {
+  }),
+  scalar_uint16: new Variant({
     dataType: DataType.UInt16,
     value: 25,
-  },
-  scalar_uint32: {
+  }),
+  scalar_uint32: new Variant({
     dataType: DataType.UInt32,
     value: 25,
-  },
-  scalar_uint64: {
+  }),
+  scalar_uint64: new Variant({
     dataType: DataType.UInt64,
     arrayType: VariantArrayType.Scalar,
     value: [242, 2323],
-  },
-  scalar_float: {
+  }),
+  scalar_float: new Variant({
     dataType: DataType.Float,
     value: 3.14,
-  },
-  scalar_double: {
+  }),
+  scalar_double: new Variant({
     dataType: DataType.Double,
     value: 6.28,
-  },
-  scalar_string: {
+  }),
+  scalar_string: new Variant({
     dataType: DataType.String,
     value: "abcdefghijklmnopqrstuvwxyz",
-  },
-  scalar_datetime: {
+  }),
+  scalar_datetime: new Variant({
     dataType: DataType.DateTime,
     value: new Date(),
-  },
-  scalar_guid: {
+  }),
+  scalar_guid: new Variant({
     dataType: DataType.Guid,
     value: randomGuid(),
-  },
-  scalar_bytestring: {
+  }),
+  scalar_bytestring: new Variant({
     dataType: DataType.ByteString,
     value: randomByteString(10, maxByteStringLength),
-  },
-  scalar_xmlelement: {
+  }),
+  scalar_xmlelement: new Variant({
     dataType: DataType.XmlElement,
     value: "<foo></foo>",
-  },
-  scalar_localizedtext: {
+  }),
+  scalar_localizedtext: new Variant({
     dataType: DataType.LocalizedText,
     value: coerceLocalizedText("Hello World"),
-  },
-  scalar_qualifiedname: {
+  }),
+  scalar_qualifiedname: new Variant({
     dataType: DataType.QualifiedName,
     value: coerceQualifiedName("Hello"),
-  },
+  }),
 };
 
-async function initializeNodes(session: ClientSession, nodes: { [key: string]: string }) {
+async function initializeNodes(session: ClientSession, nodes: Record<string, string>) {
   console.log("Initializing nodes (", Object.keys(nodes).length, ")");
 
-  const nodesToWrite: WriteValueLike[] = Object.keys(nodes).map((key) => {
+  const nodesToWrite: WriteValueOptions[] = Object.keys(nodes).map((key) => {
     const v = new Variant(defaultValue[key]);
     const n = nodes[key];
     return new WriteValue({
@@ -600,7 +595,7 @@ async function initializeNodes(session: ClientSession, nodes: { [key: string]: s
   }
   const dataValues = await session.read(nodesToWrite);
   for (let i = 0; i < nodesToWrite.length && i < 2; i++) {
-    console.log(nodesToWrite[i].value.value.toString(), dataValues[i].value.toString());
+    console.log(nodesToWrite[i].value!.value!.toString(), dataValues[i].value.toString());
   }
 }
 
@@ -659,7 +654,7 @@ async function main() {
   }
 
   console.log("Results");
-  const table = [];
+  const table: string[][] = [];
   // push column headers:
   table.push(["Stack"]);
   samples.forEach((c) => {
