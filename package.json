@@ -15,7 +15,7 @@
     "chalk": "4.1.2",
     "colors": "^1.4.0",
     "markdown-table": "^3.0.2",
-    "node-opcua": "^2.64.1",
+    "node-opcua": "^2.66.3",
     "underscore": "^1.13.2"
   }
 }
