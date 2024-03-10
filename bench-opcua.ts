@@ -1,11 +1,11 @@
 /* eslint no-console:"off" */
 "use string";
 
-import * as async from "async";
-import * as _ from "underscore";
-import * as chalk from "chalk";
+import async from "async";
+import _ from "underscore";
+import chalk from "chalk";
 import { callbackify } from "util";
-import { markdownTable } from "markdown-table";
+import markdownTable from "markdown-table";
 
 import {
   OPCUAClient,
@@ -38,6 +38,8 @@ import {
   ReadValueIdOptions,
   WriteValueOptions,
 } from "node-opcua";
+
+import * as config  from "./config";
 
 //const hostname = require("os").hostname();
 const hostname = "MYSERVER";
@@ -192,7 +194,8 @@ async function makeAliases(session: ClientSession, nodes: Record<string, string>
   const newNodes: Record<string, string> = {};
   const aliasNodes = await session.registerNodes(nodesToRegister);
   _.zip(variableNames, aliasNodes).map(([name, alias]) => {
-    newNodes[name] = alias;
+    const n = name.toString();
+    newNodes[n] = alias.toString();
   });
   return newNodes;
 }
@@ -231,7 +234,7 @@ async function single_read2(
     const nodeId = pair[0].nodeId;
     const result = pair[1];
     if (result.statusCode != StatusCodes.Good) {
-      console.log("  nodeId ", nodeId.toString(), " => ", result.statusCode.toString());
+      console.log("  nodeId ", nodeId?.toString(), " => ", result.statusCode.toString());
       process.exit();
     }
   });
@@ -589,9 +592,9 @@ async function initializeNodes(session: ClientSession, nodes: Record<string, str
   const bad = _.zip(nodesToWrite, results).filter((pair) => pair[1] != StatusCodes.Good);
   if (bad.length > 0) {
     bad.forEach((x) => {
-      console.log(x[0].nodeId.toString(), x[0].value.value.toString() + " " + x[1].toString());
+      console.log(x[0].nodeId?.toString(), x[0].value?.value?.toString() + " " + x[1].toString());
     });
-    throw new Error("Invalid write on node of types : " + bad.map((x) => x[0].value.value.dataType.toString()).join(" "));
+    throw new Error("Invalid write on node of types : " + bad.map((x) => x[0].value?.value?.dataType?.toString()).join(" "));
   }
   const dataValues = await session.read(nodesToWrite);
   for (let i = 0; i < nodesToWrite.length && i < 2; i++) {
@@ -600,55 +603,56 @@ async function initializeNodes(session: ClientSession, nodes: Record<string, str
 }
 
 async function main() {
+
   if (true) {
-    const nodes = filterNodes(require("./config").nodes_uaautomation_cpp);
+    const nodes = filterNodes(config.nodes_uaautomation_cpp);
     const endpointUrl = "opc.tcp://" + hostname + ":48010";
     await benchmark("UA Automation CPP", nodes, endpointUrl);
   }
 
   if (true) {
-    const nodes = filterNodes(require("./config").nodes_node_opcua);
+    const nodes = filterNodes(config.nodes_node_opcua);
     // let hostname = "opcuademo.sterfive.com";
     const endpointUrl = "opc.tcp://" + hostname + ":26544";
     await benchmark("NodeOPCUA(2.20.0)-CURRENT", nodes, endpointUrl);
   }
   if (true) {
-    const nodes = filterNodes(require("./config").nodes_node_opcua);
+    const nodes = filterNodes(config.nodes_node_opcua);
     // let hostname = "opcuademo.sterfive.com";
     const endpointUrl = "opc.tcp://" + hostname + ":26543";
     await benchmark("NodeOPCUA(2.21.0)-DEV", nodes, endpointUrl);
   }
   if (false) {
-    const nodes = filterNodes(require("./config").nodes_node_opcua);
+    const nodes = filterNodes(config.nodes_node_opcua);
     let hostname = "opcuademo.sterfive.com";
     const endpointUrl = "opc.tcp://" + hostname + ":26543";
     await benchmark("NodeOPCUA(0.0.65)", nodes, endpointUrl);
   }
 
   if (false) {
-    const nodes = filterNodes(require("./config").nodes_openopcua);
+    const nodes = filterNodes(config.nodes_openopcua);
     const endpointUrl = "opc.tcp://" + hostname + ":16664";
     await benchmark("OpenOPCUA", nodes, endpointUrl);
   }
 
   if (false) {
-    const nodes = filterNodes(require("./config").nodes_uaautomation_ansiC);
+    const nodes = filterNodes(config.nodes_uaautomation_ansiC);
     const endpointUrl = "opc.tcp://" + hostname + ":48020";
     await benchmark("UA Automation AnsiC", nodes, endpointUrl);
   }
 
   if (true) {
-    const nodes = filterNodes(require("./config").nodes_prosys);
+    const nodes = filterNodes(config.nodes_prosys);
     const endpointUrl = "opc.tcp://" + hostname + ":53530/OPCUA/SimulationServer";
     await benchmark("PROSYS", nodes, endpointUrl);
   }
   if (false) {
-    const nodes = filterNodes(require("./config").generic_opc);
+    const nodes = filterNodes(config.generic_opc);
     const endpointUrl = "opc.tcp://" + "localhost" + ":62541/Quickstarts/ReferenceServer";
     await benchmark("OPCFoundation", nodes, endpointUrl);
   }
   if (false) {
-    const nodes = filterNodes(require("./config").nodes_milo);
+    const nodes = filterNodes(config.nodes_milo);
     const endpointUrl = "opc.tcp://" + hostname + ":12686/example";
     await benchmark("Milo", nodes, endpointUrl);
   }

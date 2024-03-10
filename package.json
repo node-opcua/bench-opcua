@@ -10,12 +10,13 @@
   "license": "MIT",
   "dependencies": {
     "@types/markdown-table": "^2.0.0",
-    "async": "^3.2.4",
+    "@types/underscore": "^1.11.15",
+    "async": "^3.2.5",
     "better-assert": "^1.0.2",
     "chalk": "4.1.2",
     "colors": "^1.4.0",
-    "markdown-table": "^3.0.2",
-    "node-opcua": "^2.75.0",
-    "underscore": "^1.13.4"
+    "markdown-table": "2",
+    "node-opcua": "^2.122.0",
+    "underscore": "^1.13.6"
   }
 }

@@ -1,5 +1,5 @@
 // node-opcua simple server
-exports.nodes_node_opcua = {
+export const nodes_node_opcua = {
     scalar_boolean: "ns=7;s=Scalar_Static_Boolean",
     scalar_sbyte: "ns=7;s=Scalar_Static_SByte",
     scalar_int16: "ns=7;s=Scalar_Static_Int16",
@@ -39,7 +39,7 @@ exports.nodes_node_opcua = {
     array_qualifiedname: "ns=7;s=Scalar_Static_Array_QualifiedName",
 };
 
-exports.nodes_prosys = {
+export const nodes_prosys = {
     scalar_boolean: "ns=3;s=Boolean",
     scalar_sbyte: "ns=3;s=SByte",
     scalar_int16: "ns=3;s=Int16",
@@ -79,7 +79,7 @@ exports.nodes_prosys = {
     array_qualifiedname: "ns=3;s=QualifiedNameArray",
 };
 
-exports.nodes_uaautomation_cpp = {
+export const nodes_uaautomation_cpp = {
     scalar_boolean: "ns=2;s=Demo.Static.Scalar.Boolean",
     scalar_sbyte: "ns=2;s=Demo.Static.Scalar.SByte",
     scalar_int16: "ns=2;s=Demo.Static.Scalar.Int16",
@@ -118,7 +118,7 @@ exports.nodes_uaautomation_cpp = {
     array_localizedtext: "ns=2;s=Demo.Static.Arrays.LocalizedText",
     array_qualifiedname: "ns=2;s=Demo.Static.Arrays.QualifiedName",
 };
-exports.nodes_uaautomation_ansiC = {
+export const nodes_uaautomation_ansiC = {
     scalar_boolean: "ns=4;s=Demo.Static.Scalar.Boolean",
     scalar_sbyte: "ns=4;s=Demo.Static.Scalar.SByte",
     scalar_int16: "ns=4;s=Demo.Static.Scalar.Int16",
@@ -157,7 +157,7 @@ exports.nodes_uaautomation_ansiC = {
     array_localizedtext: "ns=4;s=Demo.Static.Arrays.LocalizedText",
     array_qualifiedname: "ns=4;s=Demo.Static.Arrays.QualifiedName",
 };
-exports.nodes_milo = {
+export const nodes_milo = {
     scalar_boolean: "ns=2;s=HelloWorld/ScalarTypes/Boolean",
     scalar_sbyte: "ns=2;s=HelloWorld/ScalarTypes/SByte",
     scalar_int16: "ns=2;s=HelloWorld/ScalarTypes/Int16",
@@ -197,7 +197,7 @@ exports.nodes_milo = {
     array_qualifiedname: "ns=2;s=HelloWorld/ArrayTypes/QualifiedNameArray"
 
 };
-exports.generic_opc = {
+export const generic_opc = {
     scalar_boolean: "ns=2;s=DataAccess_DataItem_Boolean",
     scalar_sbyte: "ns=2;s=DataAccess_DataItem_SByte",
     scalar_int16: "ns=2;s=DataAccess_DataItem_Int16",
@@ -237,7 +237,7 @@ exports.generic_opc = {
     array_qualifiedname: "ns=2;s=DataAccess_AnalogType_Array_QualifiedName"
 };
 
-exports.nodes_openopcua = {
+export const nodes_openopcua = {
 
     scalar_boolean: "ns=2;i=4",
     scalar_sbyte: "ns=2;i=14",
