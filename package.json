@@ -17,6 +17,6 @@
     "colors": "^1.4.0",
     "markdown-table": "2",
     "node-opcua": "^2.152.0",
-    "underscore": "^1.13.7"
+    "underscore": "^1.13.8"
   }
 }
